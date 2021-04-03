@@ -67,10 +67,6 @@ export function saveRecord(squid) {
 
 //function for checking database 
 export function checkDatabase() {
-
-  // const transaction = db.transaction("budget", "readwrite");
-  // const dataStore = transaction.objectStore("transactionsStore");
-  // const grabRecords = dataStore.getAll();
   
   useIndexedDb("budget", "transactionsStore", "get").then((result)=>{
     console.log(result)
@@ -97,9 +93,6 @@ export function checkDatabase() {
         })
           .then(response => response.json())
           .then(() => {
-            // const tx = db.transaction(["budget"], "readwrite");
-            // const store = tx.objectStore("transactionsStore");
-            // store.clear();
             useIndexedDb("budget", "transactionsStore", "deleteAll")
           });
       }
