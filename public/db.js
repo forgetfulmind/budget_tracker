@@ -67,7 +67,6 @@ export function saveRecord(squid) {
 
 //function for checking database 
 export function checkDatabase() {
-  
   useIndexedDb("budget", "transactionsStore", "get").then((result)=>{
     console.log(result)
     let body = []
