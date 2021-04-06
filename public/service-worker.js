@@ -4,18 +4,19 @@ const FILES_TO_CACHE = [
   '/index.js',
   '/db.js',
   '/styles.css',
+  '/manifest.webmanifest',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'
   // 'https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css',
 ];
 
-const PRECACHE = 'precache-v1';
-const RUNTIME = 'runtime';
+const CACHE_NAME = 'static-cache-v2';
+const DATA_CACHE_NAME = 'data-cache-v1';
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches
-      .open(PRECACHE)
+      .open(CACHE_NAME)
       .then((cache) => cache.addAll(FILES_TO_CACHE))
       .then(self.skipWaiting())
   );
@@ -23,7 +24,7 @@ self.addEventListener('install', (event) => {
 
 // The activate handler takes care of cleaning up old caches.
 self.addEventListener('activate', (event) => {
-  const currentCaches = [PRECACHE, RUNTIME];
+  const currentCaches = [CACHE_NAME, DATA_CACHE_NAME];
   event.waitUntil(
     caches
       .keys()
@@ -40,27 +41,6 @@ self.addEventListener('activate', (event) => {
       .then(() => self.clients.claim())
   );
 });
-
-// // fetch
-// self.addEventListener('fetch', (event) => {
-//   if (event.request.url.startsWith(self.location.origin)) {
-//     event.respondWith(
-//       caches.match(event.request).then((cachedResponse) => {
-//         if (cachedResponse) {
-//           return cachedResponse;
-//         }
-
-//         return caches.open(RUNTIME).then((cache) => {
-//           return fetch(event.request).then((response) => {
-//             return cache.put(event.request, response.clone()).then(() => {
-//               return response;
-//             });
-//           });
-//         });
-//       })
-//     );
-//   }
-// });
 
 //fetch 
 self.addEventListener("fetch", function(event){
@@ -83,14 +63,11 @@ self.addEventListener("fetch", function(event){
   }
 
   event.respondWith(
-    fetch(event.request).catch(function(){
-      return caches.match(event.request).then(function(response){
-        if (response){
-          return response
-        }else if (event.request.headers.get("accept").includes("text/html")){
-          return caches.match("/")
-        }
+    caches.open(CACHE_NAME).then(cache =>{
+      return cache.match(event.request).then(response => {
+        return response || fetch(event.request)
       })
     })
   )
 })
+
